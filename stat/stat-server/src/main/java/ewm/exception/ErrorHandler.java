@@ -14,18 +14,18 @@ import java.io.StringWriter;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleException(final Throwable e) {
+    public apiError handleException(final Throwable e) {
         log.warn("500 {}", e.getMessage(), e);
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         String stackTrace = sw.toString();
-        return new ApiError("Error ....",
+        return new apiError("Error ....",
                 e.getMessage(),
                 stackTrace);
     }
 
-    public record ApiError(String reason,
+    public record apiError(String reason,
                            String message,
                            String stackTrace) {
     }
