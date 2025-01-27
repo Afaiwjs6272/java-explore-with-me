@@ -28,7 +28,7 @@ public class RestStatClient implements StatClient {
     @Override
     public void hit(ParamHitDto paramHitDto) {
         restClient.post()
-                .uri("/hit")
+                .uri(statUrl + "/hit")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(paramHitDto)
                 .retrieve()
@@ -39,7 +39,7 @@ public class RestStatClient implements StatClient {
 
     @Override
     public List<ViewStats> getStat(ParamDto paramDto) {
-        return restClient.get().uri(uriBuilder -> uriBuilder.path("/stats")
+        return restClient.get().uri(uriBuilder -> uriBuilder.path(statUrl + "/stats")
                         .queryParam("start", paramDto.getStart().toString())
                         .queryParam("end", paramDto.getEnd().toString())
                         .queryParam("uris", paramDto.getUris())
