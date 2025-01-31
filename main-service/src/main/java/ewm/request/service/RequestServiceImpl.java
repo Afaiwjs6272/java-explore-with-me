@@ -11,7 +11,6 @@ import ewm.request.mapper.RequestMapper;
 import ewm.request.model.Request;
 import ewm.request.model.RequestStatus;
 import ewm.request.repository.RequestRepository;
-import ewm.request.service.RequestService;
 import ewm.user.repository.UserRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;

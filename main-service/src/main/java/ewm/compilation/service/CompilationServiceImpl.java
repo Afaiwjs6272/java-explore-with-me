@@ -41,14 +41,12 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public void delete(Long id) {
         compilationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Compilation.class, " c ID = " + id + ", не найден"));
-
+                .orElseThrow(() -> new EntityNotFoundException(Compilation.class, "(Подборка) c ID = " + id + ", не найдена"));
         compilationRepository.deleteById(id);
     }
 
     @Override
     public CompilationDto update(Long id, UpdateCompilationRequest updateCompilationRequest) {
-
         Compilation compilation = compilationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Compilation.class, "(Подборка) c ID = " + id + ", не найдена"));
         if (updateCompilationRequest.getTitle() != null) {

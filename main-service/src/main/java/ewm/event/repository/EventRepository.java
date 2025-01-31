@@ -4,7 +4,6 @@ import ewm.event.model.Event;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,28 +14,31 @@ import java.util.Optional;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    @Query("SELECT e FROM Event e " +
-            "WHERE LOWER(e.title) LIKE LOWER(?1) " +
-            "OR LOWER(e.description) LIKE LOWER(?1) " +
-            "AND e.category IN ?2 " +
-            "AND e.paid = ?3 " +
-            "AND e.eventDate BETWEEN ?4 AND ?5 " +
-            "AND e.participantLimit = ?6")
-    List<Event> findEvents(
-            String text,
-            @Param("categories") List<Long> categories,
-            @Param("paid") Boolean paid,
-            @Param("rangeStart") LocalDateTime rangeStart,
-            @Param("rangeEnd") LocalDateTime rangeEnd,
-            @Param("onlyAvailable") Boolean onlyAvailable,
-            Pageable pageable
-    );
+    @Query("""
+            SELECT e FROM Event e
+            WHERE (?1 IS NULL OR (e.title ILIKE ?1
+            OR e.description ILIKE ?1
+            OR e.annotation ILIKE ?1))
+            AND (?2 IS NULL OR e.category.id IN ?2)
+            AND (?3 IS NULL OR e.paid = ?3)
+            AND e.eventDate BETWEEN ?4 AND ?5
+            AND (?6 IS NULL OR e.state = 'PUBLISHED')
+            """)
+    List<Event> findEvents(String text,
+                           List<Long> categories,
+                           Boolean paid,
+                           LocalDateTime rangeStart,
+                           LocalDateTime rangeEnd,
+                           Boolean onlyAvailable,
+                           Pageable pageable);
 
-    @Query("SELECT e FROM Event e " +
-            "WHERE e.initiator.id IN :users " +
-            "AND e.state IN :states " +
-            "AND e.category.id IN :categories " +
-            "AND e.eventDate BETWEEN :rangeStart AND :rangeEnd")
+    @Query("""
+            SELECT e FROM Event e
+            WHERE (:users IS NULL OR e.initiator.id IN :users)
+            AND (:states IS NULL OR e.state IN :states)
+            AND (:categories IS NULL OR e.category.id IN :categories)
+            AND e.eventDate BETWEEN :rangeStart AND :rangeEnd
+            """)
     List<Event> findAdminEvents(List<Long> users,
                                 List<String> states,
                                 List<Long> categories,
