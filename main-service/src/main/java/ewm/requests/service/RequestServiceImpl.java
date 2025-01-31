@@ -1,16 +1,16 @@
-package ewm.request.service;
+package ewm.requests.service;
 
 import ewm.event.model.Event;
 import ewm.event.model.EventState;
 import ewm.event.repository.EventRepository;
 import ewm.exception.*;
-import ewm.request.dto.EventRequestStatusUpdateRequest;
-import ewm.request.dto.EventRequestStatusUpdateResult;
-import ewm.request.dto.ParticipationRequestDto;
-import ewm.request.mapper.RequestMapper;
-import ewm.request.model.Request;
-import ewm.request.model.RequestStatus;
-import ewm.request.repository.RequestRepository;
+import ewm.requests.dto.EventRequestStatusUpdateRequest;
+import ewm.requests.dto.EventRequestStatusUpdateResult;
+import ewm.requests.dto.ParticipationRequestDto;
+import ewm.requests.mapper.RequestMapper;
+import ewm.requests.model.Request;
+import ewm.requests.model.RequestStatus;
+import ewm.requests.repository.RequestRepository;
 import ewm.user.repository.UserRepository;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;

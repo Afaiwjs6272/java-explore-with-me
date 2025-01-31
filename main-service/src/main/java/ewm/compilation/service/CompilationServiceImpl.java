@@ -42,6 +42,7 @@ public class CompilationServiceImpl implements CompilationService {
     public void delete(Long id) {
         compilationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Compilation.class, "(Подборка) c ID = " + id + ", не найдена"));
+
         compilationRepository.deleteById(id);
     }
 

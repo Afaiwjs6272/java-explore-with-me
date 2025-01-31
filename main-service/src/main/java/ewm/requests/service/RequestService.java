@@ -1,8 +1,8 @@
-package ewm.request.service;
+package ewm.requests.service;
 
-import ewm.request.dto.EventRequestStatusUpdateRequest;
-import ewm.request.dto.EventRequestStatusUpdateResult;
-import ewm.request.dto.ParticipationRequestDto;
+import ewm.requests.dto.EventRequestStatusUpdateRequest;
+import ewm.requests.dto.EventRequestStatusUpdateResult;
+import ewm.requests.dto.ParticipationRequestDto;
 
 import java.util.List;
 

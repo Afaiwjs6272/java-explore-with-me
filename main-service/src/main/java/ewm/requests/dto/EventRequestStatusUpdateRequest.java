@@ -1,6 +1,6 @@
-package ewm.request.dto;
+package ewm.requests.dto;
 
-import ewm.request.model.RequestStatus;
+import ewm.requests.model.RequestStatus;
 import lombok.Getter;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package ewm.request.dto;
+package ewm.requests.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

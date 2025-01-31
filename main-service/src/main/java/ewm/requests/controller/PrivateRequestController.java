@@ -1,9 +1,9 @@
-package ewm.request.controller;
+package ewm.requests.controller;
 
-import ewm.request.dto.EventRequestStatusUpdateRequest;
-import ewm.request.dto.EventRequestStatusUpdateResult;
-import ewm.request.dto.ParticipationRequestDto;
-import ewm.request.service.RequestService;
+import ewm.requests.dto.EventRequestStatusUpdateRequest;
+import ewm.requests.dto.EventRequestStatusUpdateResult;
+import ewm.requests.dto.ParticipationRequestDto;
+import ewm.requests.service.RequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

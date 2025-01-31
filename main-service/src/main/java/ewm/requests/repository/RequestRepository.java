@@ -1,8 +1,8 @@
-package ewm.request.repository;
+package ewm.requests.repository;
 
 import ewm.event.model.Event;
-import ewm.request.model.Request;
-import ewm.request.model.RequestStatus;
+import ewm.requests.model.Request;
+import ewm.requests.model.RequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

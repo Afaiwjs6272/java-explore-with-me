@@ -3,7 +3,7 @@ package ewm.client;
 import ewm.ParamDto;
 import ewm.ParamHitDto;
 import ewm.ViewStats;
-import ewm.exception.WrongRequestException;
+import ewm.exception.InvalidRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -28,18 +28,18 @@ public class RestStatClient implements StatClient {
     @Override
     public void hit(ParamHitDto paramHitDto) {
         restClient.post()
-                .uri(statUrl + "/hit")
+                .uri("/hit")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(paramHitDto)
                 .retrieve()
                 .onStatus(status -> status != HttpStatus.CREATED, (request, response) -> {
-                    throw new WrongRequestException(response.getStatusCode().value() + ": " + response.getBody());
+                    throw new InvalidRequestException(response.getStatusCode().value() + ": " + response.getBody());
                 });
     }
 
     @Override
     public List<ViewStats> getStat(ParamDto paramDto) {
-        return restClient.get().uri(uriBuilder -> uriBuilder.path(statUrl + "/stats")
+        return restClient.get().uri(uriBuilder -> uriBuilder.path("/stats")
                         .queryParam("start", paramDto.getStart().toString())
                         .queryParam("end", paramDto.getEnd().toString())
                         .queryParam("uris", paramDto.getUris())
@@ -47,7 +47,7 @@ public class RestStatClient implements StatClient {
                         .build())
                 .retrieve()
                 .onStatus(status -> status != HttpStatus.OK, (request, response) -> {
-                    throw new WrongRequestException(response.getStatusCode().value() + ": " + response.getBody());
+                    throw new InvalidRequestException(response.getStatusCode().value() + ": " + response.getBody());
                 })
                 .body(ParameterizedTypeReference.forType(List.class));
     }

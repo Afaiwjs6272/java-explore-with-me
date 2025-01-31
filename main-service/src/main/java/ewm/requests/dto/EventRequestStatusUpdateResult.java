@@ -1,4 +1,4 @@
-package ewm.request.dto;
+package ewm.requests.dto;
 
 import lombok.Getter;
 import lombok.Setter;

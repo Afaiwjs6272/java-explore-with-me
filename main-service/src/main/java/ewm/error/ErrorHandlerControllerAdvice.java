@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ErrorHandlerControllerAdvice {
 
-    //  перехват эксепшенов валидации
+//  перехват эксепшенов валидации
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse onConstraintValidationException(
