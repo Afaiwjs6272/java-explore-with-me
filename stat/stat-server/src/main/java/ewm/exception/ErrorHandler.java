@@ -2,6 +2,7 @@ package ewm.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,6 +24,15 @@ public class ErrorHandler {
         return new ApiError("Error ....",
                 e.getMessage(),
                 stackTrace);
+    }
+
+    @ExceptionHandler({ValidateException.class, MissingServletRequestParameterException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError validateException(final RuntimeException e) {
+        log.warn("400 {}", e.getMessage(), e);
+        return new ApiError("Bad request",
+                e.getMessage(),
+                null);
     }
 
     public record ApiError(String reason,
