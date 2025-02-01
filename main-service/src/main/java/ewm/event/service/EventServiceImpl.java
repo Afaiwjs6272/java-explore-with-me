@@ -225,7 +225,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventShortDto> addViews(List<EventShortDto> eventDtos) {
-        HashMap<String, EventShortDto> eventDtoMap = new HashMap<>();
+        Map<String, EventShortDto> eventDtoMap = new HashMap<>();
         List<String> gettingUris = new ArrayList<>();
 
         for (EventShortDto dto : eventDtos) {
@@ -235,17 +235,9 @@ public class EventServiceImpl implements EventService {
         }
 
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
+        List<ViewStats> stats = objectMapper.convertValue(statClient.getStat(paramDto), new TypeReference<>() {});
 
-        Object response = statClient.getStat(paramDto);
-
-        List<ViewStats> viewStatsList;
-        if (response != null) {
-            viewStatsList = (List<ViewStats>) response;
-        } else {
-            viewStatsList = objectMapper.convertValue(response, new TypeReference<List<ViewStats>>() {});
-        }
-
-        viewStatsList.forEach(viewStats -> {
+        stats.forEach(viewStats -> {
             EventShortDto dto = eventDtoMap.get(viewStats.getUri());
             if (dto != null) {
                 dto.setViews(viewStats.getHits());
@@ -256,7 +248,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventFullDto> addViewsFullDto(List<EventFullDto> eventDtos) {
-        HashMap<String, EventFullDto> eventDtoMap = new HashMap<>();
+        Map<String, EventFullDto> eventDtoMap = new HashMap<>();
         List<String> gettingUris = new ArrayList<>();
 
         for (EventFullDto dto : eventDtos) {
@@ -266,17 +258,9 @@ public class EventServiceImpl implements EventService {
         }
 
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
+        List<ViewStats> stats = objectMapper.convertValue(statClient.getStat(paramDto), new TypeReference<>() {});
 
-        Object response = statClient.getStat(paramDto); // Получаем ответ
-
-        List<ViewStats> viewStatsList;
-        if (response != null) {
-            viewStatsList = (List<ViewStats>) response;
-        } else {
-            viewStatsList = objectMapper.convertValue(response, new TypeReference<List<ViewStats>>() {});
-        }
-
-        viewStatsList.forEach(viewStats -> {
+        stats.forEach(viewStats -> {
             EventFullDto dto = eventDtoMap.get(viewStats.getUri());
             if (dto != null) {
                 dto.setViews(viewStats.getHits());
