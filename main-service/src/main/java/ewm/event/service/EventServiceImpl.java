@@ -1,6 +1,9 @@
 package ewm.event.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ewm.ParamDto;
+import ewm.ViewStats;
 import ewm.category.model.Category;
 import ewm.category.repository.CategoryRepository;
 import ewm.client.RestStatClient;
@@ -40,6 +43,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public List<EventShortDto> getAllEvents(ReqParam reqParam) {
@@ -223,29 +227,63 @@ public class EventServiceImpl implements EventService {
     private List<EventShortDto> addViews(List<EventShortDto> eventDtos) {
         HashMap<String, EventShortDto> eventDtoMap = new HashMap<>();
         List<String> gettingUris = new ArrayList<>();
+
         for (EventShortDto dto : eventDtos) {
             String uri = "/events/" + dto.getId();
             eventDtoMap.put(uri, dto);
             gettingUris.add(uri);
         }
+
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
-        statClient.getStat(paramDto)
-                .forEach(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
-        return eventDtoMap.values().stream().toList();
+
+        Object response = statClient.getStat(paramDto);
+
+        List<ViewStats> viewStatsList;
+        if (response != null) {
+            viewStatsList = (List<ViewStats>) response;
+        } else {
+            viewStatsList = objectMapper.convertValue(response, new TypeReference<List<ViewStats>>() {});
+        }
+
+        viewStatsList.forEach(viewStats -> {
+            EventShortDto dto = eventDtoMap.get(viewStats.getUri());
+            if (dto != null) {
+                dto.setViews(viewStats.getHits());
+            }
+        });
+
+        return new ArrayList<>(eventDtoMap.values());
     }
 
     private List<EventFullDto> addViewsFullDto(List<EventFullDto> eventDtos) {
         HashMap<String, EventFullDto> eventDtoMap = new HashMap<>();
         List<String> gettingUris = new ArrayList<>();
+
         for (EventFullDto dto : eventDtos) {
             String uri = "/events/" + dto.getId();
             eventDtoMap.put(uri, dto);
             gettingUris.add(uri);
         }
+
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
-        statClient.getStat(paramDto)
-                .forEach(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
-        return eventDtoMap.values().stream().toList();
+
+        Object response = statClient.getStat(paramDto); // Получаем ответ
+
+        List<ViewStats> viewStatsList;
+        if (response != null) {
+            viewStatsList = (List<ViewStats>) response;
+        } else {
+            viewStatsList = objectMapper.convertValue(response, new TypeReference<List<ViewStats>>() {});
+        }
+
+        viewStatsList.forEach(viewStats -> {
+            EventFullDto dto = eventDtoMap.get(viewStats.getUri());
+            if (dto != null) {
+                dto.setViews(viewStats.getHits());
+            }
+        });
+
+        return new ArrayList<>(eventDtoMap.values());
     }
 
     private EventFullDto addViews(EventFullDto eventShortDto) {
