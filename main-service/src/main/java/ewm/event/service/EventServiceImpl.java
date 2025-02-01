@@ -6,7 +6,6 @@ import ewm.category.repository.CategoryRepository;
 import ewm.client.RestStatClient;
 import ewm.event.dto.*;
 import ewm.event.mapper.EventMapper;
-import ewm.event.mapper.LocationMapper;
 import ewm.event.model.*;
 import ewm.event.repository.EventRepository;
 import ewm.event.repository.LocationRepository;
@@ -41,7 +40,6 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
-    private final LocationMapper locationMapper;
 
     @Override
     public List<EventShortDto> getAllEvents(ReqParam reqParam) {
@@ -232,8 +230,7 @@ public class EventServiceImpl implements EventService {
         }
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
         statClient.getStat(paramDto)
-                .stream()
-                .peek(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
+                .forEach(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
         return eventDtoMap.values().stream().toList();
     }
 
@@ -247,8 +244,7 @@ public class EventServiceImpl implements EventService {
         }
         ParamDto paramDto = new ParamDto(LocalDateTime.now().minusYears(1), LocalDateTime.now(), gettingUris, true);
         statClient.getStat(paramDto)
-                .stream()
-                .peek(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
+                .forEach(viewStats -> eventDtoMap.get(viewStats.getUri()).setViews(viewStats.getHits()));
         return eventDtoMap.values().stream().toList();
     }
 
