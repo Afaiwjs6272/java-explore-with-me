@@ -4,7 +4,6 @@ import ewm.user.dto.UserDto;
 import ewm.user.dto.UserShortDto;
 import ewm.user.model.User;
 import lombok.experimental.UtilityClass;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
