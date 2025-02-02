@@ -132,6 +132,17 @@ public class ErrorHandlerControllerAdvice {
         return new ApiError("BAD_REQUEST", "validation exception", stackTrace, LocalDateTime.now().toString());
     }
 
+    @ExceptionHandler({NotFoundException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError notFoundException(final ValidationException e) {
+        log.error("NotFoundException - 404: {}", e.getMessage(), e);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        return new ApiError("NOT_FOUND", "not found exception", stackTrace, LocalDateTime.now().toString());
+    }
+
     @ExceptionHandler({NotPublishEventException.class,
             InitiatorRequestException.class,
             ParticipantLimitException.class,

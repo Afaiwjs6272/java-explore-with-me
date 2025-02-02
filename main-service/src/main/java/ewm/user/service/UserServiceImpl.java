@@ -2,7 +2,7 @@ package ewm.user.service;
 
 import ewm.exception.EntityNotFoundException;
 import ewm.user.dto.UserDto;
-import ewm.user.mapper.UserMapper;
+import ewm.user.mapper.UserMapper; // No need for UserMapper to be injected
 import ewm.user.model.User;
 import ewm.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -16,21 +16,24 @@ import java.util.List;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
 
     public List<UserDto> getAll(List<Long> ids, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from, size);
 
         if (ids != null && !ids.isEmpty()) {
-            return userMapper.toUserDtoList(userRepository.findByIdIn(ids, pageable));
+            return UserMapper.toUserDtoList(userRepository.findByIdIn(ids, pageable));
         } else {
-            return userMapper.toUserDtoList(userRepository.findAll(pageable).getContent());
+            return UserMapper.toUserDtoList(userRepository.findAll(pageable).getContent());
         }
     }
 
     public UserDto create(UserDto userDto) {
-        return userMapper.toUserDto(userRepository.save(userMapper.toUser(userDto)));
+        User user = UserMapper.toUser(userDto);
+
+        User savedUser = userRepository.save(user);
+
+        return UserMapper.toUserDto(savedUser);
     }
 
     public void delete(Long id) {

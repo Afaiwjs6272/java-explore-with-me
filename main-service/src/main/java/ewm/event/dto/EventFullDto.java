@@ -16,4 +16,5 @@ public class EventFullDto extends EventBaseDto {
     private String publishedOn;
     private Boolean requestModeration;
     private String state;
+    private Long commentCount;
 }
