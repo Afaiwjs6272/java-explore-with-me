@@ -7,6 +7,7 @@ import ewm.ViewStats;
 import ewm.category.model.Category;
 import ewm.category.repository.CategoryRepository;
 import ewm.client.RestStatClient;
+import ewm.comment.service.CommentService;
 import ewm.event.dto.*;
 import ewm.event.mapper.EventMapper;
 import ewm.event.model.*;
@@ -43,6 +44,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final CommentService commentService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -53,6 +55,8 @@ public class EventServiceImpl implements EventService {
             reqParam.setRangeStart(LocalDateTime.now());
             reqParam.setRangeEnd(LocalDateTime.now().plusYears(1));
         }
+
+
         List<EventShortDto> eventShortDtos = eventMapper.toEventShortDto(eventRepository.findEvents(
                 reqParam.getText(),
                 reqParam.getCategories(),
@@ -62,20 +66,38 @@ public class EventServiceImpl implements EventService {
                 reqParam.getOnlyAvailable(),
                 pageable
         ));
+
         if (eventShortDtos.isEmpty()) {
-            throw new ValidationException(ReqParam.class, " События не найдены");
+            throw new ValidationException(ReqParam.class, "События не найдены");
         }
+
+        List<Long> eventIds = eventShortDtos.stream()
+                .map(EventShortDto::getId)
+                .toList();
+
+        Map<Long, Long> commentCountMap = commentService.getCommentCount((Collection<Event>) eventMapper.toEvent((NewEventDto) eventShortDtos));
+
+        eventShortDtos.forEach(event ->
+                event.setCommentsCount(commentCountMap.getOrDefault(event.getId(), 0L))
+        );
+
         List<EventShortDto> addedRequests = addRequests(addViews(eventShortDtos));
 
         if (reqParam.getSort() != null) {
             return switch (reqParam.getSort()) {
                 case EVENT_DATE ->
-                        addedRequests.stream().sorted(Comparator.comparing(EventShortDto::getEventDate)).toList();
-                case VIEWS -> addedRequests.stream().sorted(Comparator.comparing(EventShortDto::getViews)).toList();
+                        addedRequests.stream()
+                                .sorted(Comparator.comparing(EventShortDto::getEventDate))
+                                .toList();
+                case VIEWS ->
+                        addedRequests.stream()
+                                .sorted(Comparator.comparing(EventShortDto::getViews))
+                                .toList();
             };
         }
         return addedRequests;
     }
+
 
     @Override
     public List<EventFullDto> getAllEvents(AdminEventParams params) {

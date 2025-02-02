@@ -5,9 +5,11 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class NewEventDto {
     @NotBlank(message = "Аннотация не может быть пустой")
     @Size(min = 20, max = 2000)
@@ -28,4 +30,6 @@ public class NewEventDto {
     @NotBlank(message = "Заголовок не может быть пустым")
     @Size(min = 3, max = 120)
     private String title;
+
+    private Long commentCount;
 }

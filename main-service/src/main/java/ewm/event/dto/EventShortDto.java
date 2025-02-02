@@ -1,12 +1,17 @@
 package ewm.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class EventShortDto extends EventBaseDto {
     private String eventDate;
+
+    private Long commentCount;
+
+    public void setCommentsCount(Long orDefault) {
+        commentCount = orDefault;
+    }
 }
