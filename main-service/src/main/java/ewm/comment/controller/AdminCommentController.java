@@ -1,44 +1,42 @@
 package ewm.comment.controller;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import ewm.comment.dto.CommentDto;
+import ewm.comment.dto.UpdateCommentDto;
 import ewm.comment.service.CommentService;
-
-import java.util.List;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(path = "/admin")
+@RequestMapping(path = "/admin/comments")
 @RequiredArgsConstructor
-@Slf4j
+@Validated
 public class AdminCommentController {
 
     private final CommentService commentService;
 
+    @PostMapping("/{eventId}/{userId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto add(@PathVariable("eventId") long eventId,
+                          @PathVariable("userId") long adminId,
+                          @Valid @RequestBody CommentDto commentDto) {
 
-    @GetMapping("comment/search")
-    public ResponseEntity<List<CommentDto>> search(@RequestParam String text) {
-        log.info("Calling the GET request to /admin/comment/search endpoint");
-        return ResponseEntity.ok(commentService.search(text));
+        return commentService.add(adminId, eventId, commentDto);
     }
 
-    @GetMapping("users/{userId}/comment")
-    public ResponseEntity<List<CommentDto>> get(@PathVariable Long userId) {
-        log.info("Calling the GET request to admin/users/{userId}/comment endpoint");
-        return ResponseEntity.ok(commentService.findAllById(userId));
-    }
-
-    @DeleteMapping("comment/{comId}")
+    @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<String> delete(@PathVariable Long comId) {
-        log.info("Calling the GET request to admin/comment/{comId} endpoint");
-        commentService.delete(comId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body("Comment deleted by admin: " + comId);
+    public void delete(@PathVariable("commentId") long id) {
+        commentService.delete(id);
     }
+
+    @PatchMapping("/{commentId}")
+    public CommentDto update(@PathVariable("commentId") long id,
+                             @Valid @RequestBody UpdateCommentDto updateCommentDto) {
+        return commentService.update(id, updateCommentDto);
+    }
+
 }

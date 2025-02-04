@@ -1,6 +1,5 @@
 package ewm.event.mapper;
 
-import ewm.event.dto.EventCommentDto;
 import ewm.event.dto.EventFullDto;
 import ewm.event.dto.EventShortDto;
 import ewm.event.dto.NewEventDto;
@@ -20,7 +19,6 @@ public interface EventMapper {
 
     @Mapping(target = "views", ignore = true)
     @Mapping(target = "confirmedRequests", ignore = true)
-    @Mapping(target = "commentCount", ignore = true)
     List<EventShortDto> toEventShortDto(List<Event> event);
 
     @Mapping(target = "views", ignore = true)
@@ -40,12 +38,7 @@ public interface EventMapper {
     @Mapping(target = "state", ignore = true)
     Event toEvent(NewEventDto newEventDto);
 
-     static EventCommentDto toEventComment(Event event) {
-        return EventCommentDto.builder()
-                .id(event.getId())
-                .title(event.getTitle())
-                .build();
-    }
+    List<EventShortDto> toEventShortDtos(List<EventFullDto> eventFullDtos);
 
     default LocalDateTime stringToLocalDateTime(String stringDate) {
         if (stringDate == null) {

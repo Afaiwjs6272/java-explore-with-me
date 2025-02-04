@@ -1,30 +1,21 @@
 package ewm.comment.service;
 
-import ewm.comment.dto.CommentCreateDto;
 import ewm.comment.dto.CommentDto;
-import ewm.comment.dto.CommentShortDto;
-import ewm.event.model.Event;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import ewm.comment.dto.InputCommentDto;
+import ewm.comment.dto.UpdateCommentDto;
 
 public interface CommentService {
-    void delete(Long comId);
 
-    List<CommentDto> search(String text);
+    CommentDto add(Long userId, Long eventId, InputCommentDto inputCommentDto);
 
-    List<CommentDto> findAllById(Long userId);
+    CommentDto add(Long adminId, Long eventId, CommentDto commentDto);
 
-    CommentDto getComment(Long comId);
+    CommentDto update(Long userId, Long commentId, InputCommentDto inputCommentDto);
 
-    List<CommentShortDto> getCommentsByEvent(Long eventId, int from, int size);
+    CommentDto update(Long id, UpdateCommentDto updateCommentDto);
 
-    CommentDto createComment(Long userId, Long eventId, CommentCreateDto commentDto);
+    void delete(Long id);
 
-    void deleteComment(Long userId, Long comId);
+    void delete(Long userId, Long commentId);
 
-    CommentDto patchComment(Long userId, Long comId, CommentCreateDto commentCreateDto);
-
-    Map<Long, Long> getCommentCount(Collection<Event> list);
 }

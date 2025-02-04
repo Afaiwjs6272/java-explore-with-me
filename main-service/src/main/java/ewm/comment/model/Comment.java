@@ -1,39 +1,31 @@
 package ewm.comment.model;
 
-import lombok.*;
 import ewm.event.model.Event;
 import ewm.user.model.User;
-
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "comments")
 @Getter
 @Setter
-@Builder
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "comments")
+@ToString
 public class Comment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "textual_content")
-    private String text;
-
     @ManyToOne
-    @JoinColumn(name = "author_id")
-    private User author;
-
-    @ManyToOne
-    @JoinColumn(name = "event_id")
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
-
-    @Column(name = "create_time")
-    private LocalDateTime createTime;
-
-    @Column(name = "patch_time")
-    private LocalDateTime patchTime;
+    @ManyToOne
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+    @Column(name = "text", nullable = false)
+    private String text;
+    @Column(name = "created", nullable = false)
+    private LocalDateTime created;
 }

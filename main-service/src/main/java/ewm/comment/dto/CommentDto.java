@@ -1,23 +1,25 @@
 package ewm.comment.dto;
 
-import lombok.*;
-import ewm.event.dto.EventCommentDto;
-import ewm.user.dto.UserDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import ewm.user.dto.UserShortDto;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class CommentDto {
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long id;
+    private Long eventId;
+    private UserShortDto author;
 
-    private long id;
-
+    @NotBlank
     private String text;
 
-    private UserDto author;
-
-    private EventCommentDto event;
-
-    private String createTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime created;
 }

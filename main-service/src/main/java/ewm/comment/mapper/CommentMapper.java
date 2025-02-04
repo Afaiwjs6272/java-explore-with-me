@@ -1,52 +1,28 @@
 package ewm.comment.mapper;
 
-import lombok.experimental.UtilityClass;
 import ewm.comment.dto.CommentDto;
-import ewm.comment.dto.CommentShortDto;
-import ewm.comment.dto.CommentCreateDto;
+import ewm.comment.dto.InputCommentDto;
 import ewm.comment.model.Comment;
-import ewm.event.mapper.EventMapper;
-import ewm.user.mapper.UserMapper;
+import ewm.event.model.Event;
+import ewm.user.model.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring")
+public interface CommentMapper {
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "author", source = "author")
+    @Mapping(target = "event", source = "event")
+    @Mapping(target = "created", ignore = true)
+    Comment toComment(InputCommentDto inputCommentDto, User author, Event event);
 
-@UtilityClass
-public class CommentMapper {
+    @Mapping(target = "eventId", source = "event.id")
+    CommentDto toCommentDto(Comment comment);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "author", source = "admin")
+    @Mapping(target = "event", source = "event")
+    @Mapping(target = "created", expression = "java(java.time.LocalDateTime.now())")
+    Comment toComment(CommentDto commentDto, User admin, Event event);
 
-    public Comment toComment(CommentCreateDto commentDto) {
-        return Comment.builder()
-                .text(commentDto.getText())
-                .build();
-    }
-
-    public CommentDto toCommentDto(Comment comment) {
-        return CommentDto.builder()
-                .id(comment.getId())
-                .author(UserMapper.toUserDto(comment.getAuthor()))
-                .event(EventMapper.toEventComment(comment.getEvent()))
-                .createTime(comment.getCreateTime().format(FORMATTER))
-                .text(comment.getText())
-                .build();
-    }
-
-    public List<CommentDto> toListCommentDto(List<Comment> list) {
-        return list.stream().map(CommentMapper::toCommentDto).collect(Collectors.toList());
-    }
-
-    public CommentShortDto toCommentShortDto(Comment comment) {
-        return CommentShortDto.builder()
-                .author(UserMapper.toUserDto(comment.getAuthor()))
-                .createTime(comment.getCreateTime().format(FORMATTER))
-                .id(comment.getId())
-                .text(comment.getText())
-                .build();
-    }
-
-    public List<CommentShortDto> toListCommentShortDto(List<Comment> list) {
-        return list.stream().map(CommentMapper::toCommentShortDto).collect(Collectors.toList());
-    }
 }

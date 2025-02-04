@@ -1,46 +1,40 @@
 package ewm.comment.controller;
 
+import ewm.comment.dto.CommentDto;
+import ewm.comment.dto.InputCommentDto;
+import ewm.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ewm.comment.dto.CommentDto;
-import ewm.comment.dto.CommentCreateDto;
-import ewm.comment.service.CommentService;
 
 @RestController
-@Validated
+@RequestMapping("/comments")
 @RequiredArgsConstructor
-@Slf4j
+@Validated
 public class PrivateCommentController {
+    private final CommentService commentService;
 
-    private final CommentService service;
-
-    @PostMapping("/users/{userId}/events/{eventId}/comment")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<CommentDto> create(@PathVariable Long userId, @PathVariable Long eventId,
-                                             @RequestBody @Validated CommentCreateDto commentCreateDto) {
-        log.info("Calling the GET request to /users/{userId}/events/{eventId}/comment endpoint");
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.createComment(userId, eventId, commentCreateDto));
+    @PostMapping("/{eventId}/{userId}")
+    public CommentDto addComment(@PathVariable(name = "eventId") Long eventId,
+                                 @PathVariable(name = "userId") Long userId,
+                                 @Valid @RequestBody InputCommentDto inputCommentDto) {
+        return commentService.add(userId, eventId, inputCommentDto);
     }
 
-    @DeleteMapping("/users/{userId}/comment/{comId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<String> delete(@PathVariable Long userId, @PathVariable Long comId) {
-        log.info("Calling the GET request to /users/{userId}/comment/{comId} endpoint");
-        service.deleteComment(userId, comId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body("Comment deleted by user: " + comId);
+    @DeleteMapping("/{commentId}/{userId}")
+    public void deleteComment(@PathVariable(name = "commentId") Long commentId,
+                              @PathVariable(name = "userId") Long userId) {
+        commentService.delete(userId, commentId);
     }
 
-    @PatchMapping("/users/{userId}/comment/{comId}")
-    public ResponseEntity<CommentDto> patch(@PathVariable Long userId, @PathVariable Long comId,
-                                            @RequestBody @Validated CommentCreateDto commentCreateDto) {
-        log.info("Calling the PATCH request to users/{userId}/comment/{comId} endpoint");
-        return ResponseEntity.ok(service.patchComment(userId, comId, commentCreateDto));
+    @PatchMapping("/{commentId}/{userId}")
+    public CommentDto updateComment(@PathVariable(name = "commentId") Long commentId,
+                                    @PathVariable(name = "userId") Long userId,
+                                    @Valid @RequestBody InputCommentDto inputCommentDto) {
+        return commentService.update(userId, commentId, inputCommentDto);
     }
 }
