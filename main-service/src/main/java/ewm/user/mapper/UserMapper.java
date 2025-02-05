@@ -3,18 +3,26 @@ package ewm.user.mapper;
 import ewm.user.dto.UserDto;
 import ewm.user.dto.UserShortDto;
 import ewm.user.model.User;
-import org.mapstruct.Mapper;
+import lombok.experimental.UtilityClass;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@UtilityClass
+public class UserMapper {
 
-    UserDto toUserDto(User user);
+    public UserDto toUserDto(User user) {
+        return new UserDto(user.getId(), user.getName(), user.getEmail());
+    }
 
-    UserShortDto toUserShortDto(User user);
+    public UserShortDto toUserShortDto(User user) {
+        return new UserShortDto(user.getId(), user.getName());
+    }
 
-    List<UserDto> toUserDtoList(List<User> users);
+    public List<UserDto> toUserDtoList(List<User> users) {
+        return users.stream().map(UserMapper::toUserDto).toList();
+    }
 
-    User toUser(UserDto userDto);
+    public User toUser(UserDto userDto) {
+        return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
+    }
 }

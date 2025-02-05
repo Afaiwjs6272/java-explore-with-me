@@ -38,6 +38,8 @@ public interface EventMapper {
     @Mapping(target = "state", ignore = true)
     Event toEvent(NewEventDto newEventDto);
 
+    List<EventShortDto> toEventShortDtos(List<EventFullDto> eventFullDtos);
+
     default LocalDateTime stringToLocalDateTime(String stringDate) {
         if (stringDate == null) {
             return null;

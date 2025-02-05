@@ -43,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         if (requestRepository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
-            throw new RepeatUserRequestorException("Пользователь с ID - " + userId + ", не найден.");
+            throw new RepeatUserRequestorException("Пользователь с ID - " + userId + ", уже заявился на событие с ID - " + eventId + ".");
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, "Событие с ID - " + eventId + ", не найдено."));
