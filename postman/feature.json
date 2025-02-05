@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "6c543abd-94b9-446d-b568-9fef8f1d4050",
+    "_postman_id": "d4fee38d-2f25-440b-8dc3-922eb96394d1",
     "name": "feature",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "31238337"
@@ -28,6 +28,7 @@
               "        pm.collectionVariables.set(\"uid\", user.id)\r",
               "        const category = await api.addCategory(rnd.getCategory());\r",
               "        event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
+              "        pm.collectionVariables.set(\"eventId\", event.id)\r",
               "\r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
@@ -157,12 +158,16 @@
               "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
               "        pm.collectionVariables.set(\"eventId\", event.id)\r",
               "        eventId = pm.collectionVariables.get('eventId');\r",
-              "\r",
+              "        await api.publishEvent(eventId);\r",
               "        \r",
               "        const comment = await api.addComment(rnd.getComment(),eventId, userId);\r",
-              "        const findedComment = await api.findComment(comment.id);\r",
+              "        await api.addComment(rnd.getComment(),eventId, userId);\r",
+              "\r",
+              "        const findedComments = await api.findComments(eventId);\r",
+              "\r",
               "        pm.collectionVariables.set(\"commentId\", comment.id)\r",
-              "        pm.collectionVariables.set(\"response\", findedComment)\r",
+              "        pm.collectionVariables.set(\"response_t\", findedComments)\r",
+              "\r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
               "    }\r",
@@ -195,21 +200,41 @@
               "    pm.response.to.have.status(204);\r",
               "});\r",
               "\r",
-              "source = pm.collectionVariables.get('response');\r",
-              "commentId = pm.collectionVariables.get('commentId');\r",
+              "const source = pm.collectionVariables.get('response_t');\r",
+              "console.log(source, \"source\");\r",
               "\r",
-              "pm.test(\"Комментарий должен быть найден до удаления\", function () {\r",
-              "    pm.expect(source.id).equal(commentId, 'Идентификтор категории должен совпадать с удаляемым');\r",
-              "});\r",
+              "const commentId = pm.collectionVariables.get('commentId');\r",
+              "const eventId = pm.collectionVariables.get('eventId');\r",
+              "const initialCount = source.length;\r",
+              "console.log(initialCount, \"initialCount\");\r",
               "\r",
               "pm.sendRequest({\r",
-              "        url: pm.collectionVariables.get(\"baseUrl\") + \"/comments/\" + commentId,\r",
+              "        url: pm.collectionVariables.get(\"baseUrl\") + \"/comments/\" + eventId,\r",
               "        method: 'GET',\r",
               "    }, (error, response) => {\r",
-              "        pm.test(\"Категория не должна быть найдена после удаления\", function () {\r",
-              "            pm.expect(response.code).to.eql(404);\r",
+              "        pm.test(\"Должны получить комментарии\", function () {\r",
+              "            pm.expect(response.code).to.eql(200);\r",
               "        });\r",
-              "    });"
+              "\r",
+              "console.log(response, \"response\");\r",
+              "\r",
+              "\r",
+              "const updatedComments = response.json();\r",
+              "console.log(updatedComments, \"updatedComments\")\r",
+              "\r",
+              "const updatedCount = updatedComments.length;\r",
+              "console.log(updatedCount, \"updatedCount\");\r",
+              "\r",
+              "pm.test(\"Количество комментариев должен быть меньше на 1\", function () {\r",
+              "    pm.expect(updatedCount).to.equal(initialCount - 1);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Удалённый комментарий должен отсутствовать\", function () {\r",
+              "        const deletedCommentExists = updatedComments.some(comment => comment.id === commentId);\r",
+              "        pm.expect(deletedCommentExists).to.be.false;\r",
+              "    });\r",
+              "\r",
+              "});"
             ],
             "type": "text/javascript",
             "packages": {}
@@ -255,9 +280,11 @@
               "const main = async () => {\r",
               "    const api = new API(pm);\r",
               "    const rnd = new RandomUtils();\r",
+              "    \r",
               "    let comment\r",
               "    let userId\r",
               "    let eventId\r",
+              "\r",
               "    try {\r",
               "        user = await api.addUser(rnd.getUser());\r",
               "        pm.collectionVariables.set(\"uid\", user.id)\r",
@@ -268,10 +295,12 @@
               "        pm.collectionVariables.set(\"eventId\", event.id)\r",
               "        eventId = pm.collectionVariables.get('eventId');\r",
               "        comment = await api.addComment(rnd.getComment(),eventId, userId);\r",
+              "        pm.collectionVariables.set(\"commentId\", Number(comment.id))\r",
+              "        \r",
               "    } catch(err) {\r",
               "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
               "    }\r",
-              "    pm.collectionVariables.set(\"commentId\", Number(comment.id))\r",
+              "\r",
               "    pm.request.body.update({\r",
               "        mode: 'raw',\r",
               "        raw: JSON.stringify({\r",
@@ -353,6 +382,110 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Получение комментариев указанного события",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const main = async () => {\r",
+              "    const api = new API(pm);\r",
+              "    const rnd = new RandomUtils();\r",
+              "\r",
+              "    try {\r",
+              "        const user = await api.addUser(rnd.getUser());\r",
+              "        pm.collectionVariables.set(\"uid\", user.id)\r",
+              "        const category = await api.addCategory(rnd.getCategory());\r",
+              "        const event = await api.addEvent(user.id, rnd.getEvent(category.id));\r",
+              "    } catch(err) {\r",
+              "        console.error(\"Ошибка при подготовке тестовых данных.\", err);\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "const interval = setInterval(() => {}, 1000);\r",
+              "\r",
+              "setTimeout(async () => \r",
+              "    {\r",
+              "        try {\r",
+              "            await main();\r",
+              "        } catch (e) {\r",
+              "            console.error(e);\r",
+              "        } finally {\r",
+              "            clearInterval(interval);\r",
+              "        }\r",
+              "    },  \r",
+              "    100 \r",
+              ");"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Ответ должен содержать код статуса 200 и данные в формате json\", function () {\r",
+              "    pm.response.to.be.ok;    \r",
+              "    pm.response.to.be.withBody;\r",
+              "    pm.response.to.be.json;\r",
+              "});\r",
+              "\r",
+              "const target = pm.response.json()[0];\r",
+              "\r",
+              "pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate\", function () {\r",
+              "    pm.expect(target).to.contain.keys('id', 'title', 'annotation', 'category', 'paid', 'eventDate');\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Данные в ответе должны соответствовать данным в запросе\", function () {\r",
+              "    pm.expect(target.id).to.not.be.null;\r",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/users/:userId/events?from=0&size=1000",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "users",
+            ":userId",
+            "events"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "0",
+              "description": "количество элементов, которые нужно пропустить для формирования текущего набора"
+            },
+            {
+              "key": "size",
+              "value": "1000",
+              "description": "количество элементов в наборе"
+            }
+          ],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "{{uid}}",
+              "description": "(Required) id текущего пользователя"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "event": [
@@ -411,6 +544,10 @@
           "    ",
           "    async findComment(commentId, verbose=null) {",
           "        return this.get('/comments/' + commentId, null, \"Ошибка при поиске комментария по id\", verbose);",
+          "    }",
+          "",
+          "    async findComments(eventId, verbose=null) {",
+          "        return this.get('/comments/' + eventId, null, \"Ошибка при поиске комментариев\", verbose);",
           "    }",
           "",
           "    async findCompilation(compId, verbose=null) {",
@@ -684,6 +821,10 @@
       "key": "eventId",
       "value": "",
       "type": "default"
+    },
+    {
+      "key": "response_t",
+      "value": ""
     }
   ]
 }

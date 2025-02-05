@@ -8,6 +8,8 @@ import ewm.user.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
     @Mapping(target = "id", ignore = true)
@@ -25,4 +27,6 @@ public interface CommentMapper {
     @Mapping(target = "created", expression = "java(java.time.LocalDateTime.now())")
     Comment toComment(CommentDto commentDto, User admin, Event event);
 
+    @Mapping(target = "eventId", source = "event.id")
+    List<CommentDto> toCommentDtos(List<Comment> comments);
 }

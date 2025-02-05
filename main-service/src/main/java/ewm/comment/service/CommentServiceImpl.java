@@ -17,9 +17,12 @@ import ewm.requests.repository.RequestRepository;
 import ewm.user.model.User;
 import ewm.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -107,4 +110,14 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toCommentDto(commentRepository.save(comment));
     }
 
+    @Override
+    public List<CommentDto> findCommentsByEventId(Long eventId, Integer from, Integer size) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, "Событие c ID - " + eventId + ", не найдено."));
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConditionNotMetException("Событие c ID - " + eventId + ", не опубликовано.");
+        }
+        Pageable pageable = PageRequest.of(from, size);
+        return commentMapper.toCommentDtos(commentRepository.findAllByEventId(eventId, pageable));
+    }
 }
