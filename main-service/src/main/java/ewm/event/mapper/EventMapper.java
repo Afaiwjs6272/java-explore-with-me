@@ -21,10 +21,12 @@ public interface EventMapper {
     @Mapping(target = "confirmedRequests", ignore = true)
     List<EventShortDto> toEventShortDto(List<Event> event);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "views", ignore = true)
     @Mapping(target = "confirmedRequests", ignore = true)
     EventFullDto toEventFullDto(Event event);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "views", ignore = true)
     @Mapping(target = "confirmedRequests", ignore = true)
     List<EventFullDto> toEventFullDtos(List<Event> events);
